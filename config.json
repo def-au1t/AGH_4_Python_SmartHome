@@ -1,0 +1,77 @@
+[
+    {
+      "name": "Kuchnia",
+      "id": "kitchen",
+      "devices": [
+        {
+          "name": "Oświetlenie kuchni 1",
+          "type": "light",
+          "id": "light1",
+          "settings": {
+            "status": "OFF",
+            "power": 100,
+            "props": [
+              "światło białe",
+              "światło żółte",
+              "światło zielone"
+            ]
+          }
+        },
+        {
+          "name": "Oświetlenie kuchni 2",
+          "type": "light",
+          "id": "light2",
+          "settings": {
+            "status": "OFF",
+            "power": 10
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pokój dzienny",
+      "id": "living_room",
+      "devices": [
+        {
+          "name": "Oświetlenie salonu 1",
+          "type": "light",
+          "id": "light1",
+          "settings": {
+            "status": "OFF",
+            "power": 100,
+            "props": [
+              "światło białe",
+              "światło żółte",
+              "światło zielone"
+            ]
+          }
+        },
+        {
+          "name": "Oświetlenie salonu 2",
+          "type": "light",
+          "id": "light2",
+          "settings": {
+            "status": "OFF",
+            "power": 10
+          }
+        },
+        {
+          "name": "Wieża stereo",
+          "type": "audio",
+          "id": "audio1",
+          "settings": {
+            "status": "OFF",
+            "power": 15,
+            "props": [
+              "Radio Internetowe",
+              "Bluetooth",
+              "TV",
+              "Spotify"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+
+
