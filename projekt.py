@@ -2,83 +2,69 @@ import json
 import threading
 import tkinter as tk
 from tkinter import ttk
+
+import pymongo
+from dotenv import load_dotenv
+from pymongo import MongoClient
+from pymongo.database import Database
+
 from mqtt import *
 from tk_views import *
 import io
+import os
 import sqlite3
 
-smart_objects = None
-mqtt_client = None
-window = None
-db = None
 
-def connect_to_db(name):
-    global db
-    try:
-        conn = sqlite3.connect(name)
-    except:
-        print("Cannot connect to SQLite database")
-        # exit()
+class Main(object):
+    # smart_objects = None
+    # mqttm = None
+    # wm = None
+    # db = None
 
+    def __init__(self):
+        self.smart_objects = None
+        self.db = None
+        self.wm : WindowsManager = None
 
+        load_dotenv()
+        self.parse_smart_objects_config()
+        self.mqtt_manager = MqttManager()
+        self.connect_to_db()
+        self.wm = WindowsManager(self)
+        self.wm.loop()
 
-def connect_to_mqtt(host, port, keepalive):
-    global mqtt_client
-    mqtt_client = mqtt.Client()
-    mqtt_client.mqtt_on_connect = mqtt_on_connect
-    mqtt_client.mqtt_on_message = mqtt_on_message
-    try:
-        mqtt_client.connect(host, port, keepalive)
-    except:
-        print("Cannot connect to MQTT Broker")
-        exit()
+    def try_login(self, username, password):
+        if self.db is None:
+            print("Nie udało się połączyć z bazą danych")
+            return
+        users = self.db.get_collection("users")
+        user = users.find_one({"username": username})
+        if not user:
+            print("Nie znaleniono użytkownika w bazie!")
+            self.wm.tk_login_view(info="nie udało się zalogować")
 
-def parse_smart_objects_config():
-    global smart_objects
-    with io.open("config.json", encoding="utf-8") as config_data:
+    def connect_to_db(self):
         try:
-            config_text = config_data.read()
-            smart_objects = json.loads(config_text)
+            c_string = os.getenv("CONNECTION_STRING")
+            client = pymongo.MongoClient(c_string)
+            self.db = client.get_database("smarthome")
         except:
-            print("Cannot parse JSON config.")
+            print("Cannot connect to MongoDB database!")
             exit()
 
+    def parse_smart_objects_config(self):
+        with io.open("config.json", encoding="utf-8") as config_data:
+            try:
+                config_text = config_data.read()
+                self.smart_objects = json.loads(config_text)
+            except:
+                print("Cannot parse JSON config.")
+                exit()
 
 
-
-def show_rc_login():
-    global window
-    window = tk.Tk()
-    window.title("Smart-home remote control")
-    label = tk.Label(text="Hello")
-    label.pack()
-    button1 = tk.Button(text="Kitchen Light On", command=mqtt_send_message)
-    button1.pack()
-
-
-
-def create_tk_window():
-    global window
-    window = tk.Tk()
-    window.title("Smart Home Remote Control")
-    window.configure()
-    window.geometry("1000x600")
-    window.resizable(False, False)
-    tk_start_view(window)
-
-
-def init():
-    parse_smart_objects_config()
-    connect_to_mqtt("localhost", 1883, 60)
-    connect_to_db("remote_control.db")
-    create_tk_window()
-
-
-def main():
-    init();
-    mqtt_client.publish("test/topic", "Hello world2!");
-    window.mainloop()
-
+# def main():
+#     main.mqtt_client.publish("test/topic", "Hello world2!");
+#
 
 if __name__ == '__main__':
-    main()
+    main = Main()
