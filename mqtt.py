@@ -27,7 +27,9 @@ class MqttManager:
         thread.start()
 
     def mqtt_send_message(self, topic="cmd/kitchen/light1", message="on"):
+        message = format(message)
         if self.mqtt_client is None:
             print("MQTT client not connected!")
             return
+        print("Sending: "+ topic + "|->" + message)
         self.mqtt_client.publish(topic, message)

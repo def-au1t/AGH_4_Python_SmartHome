@@ -8,13 +8,15 @@
           "type": "light",
           "id": "light1",
           "settings": {
-            "status": "OFF",
-            "power": 100,
+            "status": "ON",
+            "power_max": 100,
+            "power": 50,
             "props": [
               "światło białe",
               "światło żółte",
               "światło zielone"
-            ]
+            ],
+            "prop": 2
           }
         },
         {
@@ -23,7 +25,8 @@
           "id": "light2",
           "settings": {
             "status": "OFF",
-            "power": 10
+            "power_max": 10,
+            "power": 2
           }
         }
       ]
@@ -38,12 +41,14 @@
           "id": "light1",
           "settings": {
             "status": "OFF",
-            "power": 100,
+            "power_max": 100,
+            "power": 0,
             "props": [
               "światło białe",
               "światło żółte",
               "światło zielone"
-            ]
+            ],
+            "prop": 0
           }
         },
         {
@@ -52,7 +57,8 @@
           "id": "light2",
           "settings": {
             "status": "OFF",
-            "power": 10
+            "power_max": 10,
+            "power": 7
           }
         },
         {
@@ -61,13 +67,32 @@
           "id": "audio1",
           "settings": {
             "status": "OFF",
-            "power": 15,
+            "power_max": 15,
+            "power": 3,
             "props": [
               "Radio Internetowe",
               "Bluetooth",
               "TV",
               "Spotify"
-            ]
+            ],
+            "prop": 1
+          }
+        },
+        {
+          "name": "Wieża stereo 2",
+          "type": "audio",
+          "id": "audio1",
+          "settings": {
+            "status": "OFF",
+            "power_max": 15,
+            "power": 3,
+            "props": [
+              "Radio Internetowe",
+              "Bluetooth",
+              "TV",
+              "Spotify"
+            ],
+            "prop": 1
           }
         }
       ]

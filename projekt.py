@@ -1,30 +1,24 @@
+import io
 import json
-import threading
-import tkinter as tk
-from tkinter import ttk
+import os
 
+import bcrypt as bcrypt
 import pymongo
+import pyotp
+import qrcode
+from bson.binary import Binary
 from dotenv import load_dotenv
-from pymongo import MongoClient
-from pymongo.database import Database
 
 from mqtt import *
 from tk_views import *
-import io
-import os
-import sqlite3
 
 
 class Main(object):
-    # smart_objects = None
-    # mqttm = None
-    # wm = None
-    # db = None
-
     def __init__(self):
         self.smart_objects = None
         self.db = None
-        self.wm : WindowsManager = None
+        self.wm: WindowsManager = None
+        self.logged = None
 
         load_dotenv()
         self.parse_smart_objects_config()
@@ -34,14 +28,93 @@ class Main(object):
         self.wm.loop()
 
     def try_login(self, username, password):
+        username = username.get()
+        password = password.get()
         if self.db is None:
             print("Nie udało się połączyć z bazą danych")
             return
         users = self.db.get_collection("users")
         user = users.find_one({"username": username})
         if not user:
-            print("Nie znaleniono użytkownika w bazie!")
-            self.wm.tk_login_view(info="nie udało się zalogować")
+            print("Nie znaleziono użytkownika w bazie!")
+            self.wm.tk_login_view(info="Nieprawidłowa nazwa użytkownika")
+        elif bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            self.wm.tk_login_code_view(username=username, key=user['otp_key'])
+        else:
+            self.wm.tk_login_view(info="Nieprawidłowe hasło")
+
+    def try_login_code(self, username, key, input_code):
+        input_code = input_code.get()
+        if self.db is None:
+            print("Nie udało się połączyć z bazą danych")
+            return
+        current_key = pyotp.TOTP(key).now()
+        if input_code == current_key:
+            self.logged = username
+            self.wm.tk_logged()
+        else:
+            self.wm.tk_login_code_view(username=username, key=key, info="Niepoprawny kod")
+
+    def logout(self):
+        self.logged = None
+        self.wm.window.destroy()
+        self.wm = WindowsManager(self)
+
+    def try_register(self, username, password, password2):
+        username = username.get()
+        password = password.get()
+        password2 = password2.get()
+        if self.db is None:
+            print("Nie udało się połączyć z bazą danych")
+            self.wm.tk_register_view(info="Nie udało się połączyć z bazą!")
+            return
+        if len(username) < 3:
+            print("Nazwa użytkownika jest zbyt krótka!")
+            self.wm.tk_register_view(info="Nazwa użytkownika jest zbyt krótka!")
+            return
+        if len(password) < 3:
+            print("Hasło jest zbyt krótkie!")
+            self.wm.tk_register_view(info="Hasło jest zbyt krótkie!")
+            return
+        if password != password2:
+            print("Hasła nie pasują do siebie!")
+            self.wm.tk_register_view(info="Hasła do siebie nie pasują!")
+            return
+        users = self.db.get_collection("users")
+        user = users.find_one({"username": username})
+        if user:
+            print("użytkownik już istnieje w bazie!")
+            self.wm.tk_register_view(info="Nazwa użytkownika już istnieje!")
+            return;
+
+        random_key = pyotp.random_base32()
+        qr_string = pyotp.totp.TOTP(random_key).provisioning_uri(username, issuer_name="Smart Home Remote Control")
+        qrcode.make(qr_string).save("static/qr/qr_code_" + username + ".png")
+
+        self.wm.tk_register_code_view(username=username, password=password, key=random_key)
+
+    def try_register_code(self, username, password, key, code):
+        code = code.get()
+        if self.db is None:
+            print("Nie udało się połączyć z bazą danych")
+            self.wm.tk_register_code_view(username=username, password=password, key=key)
+            return
+        users = self.db.get_collection("users")
+
+        if pyotp.TOTP(key).now() != code:
+            print("Błędny kod")
+            self.wm.tk_register_code_view(username=username, password=password, key=key, info="Błędny kod!")
+            return
+
+        passwd_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+        qr_img = open("static/qr/qr_code_" + username + ".png", 'rb').read()
+        new_user = {"username": username,
+                    "password": passwd_hash,
+                    "otp_key": key,
+                    "img": Binary(qr_img)}
+        users.insert_one(new_user)
+
+        self.wm.tk_login_view(info="Zarejestrowano pomyślnie! Zaloguj się!")
 
     def connect_to_db(self):
         try:
@@ -61,10 +134,47 @@ class Main(object):
                 print("Cannot parse JSON config.")
                 exit()
 
+    def switch_device(self, device_id, room_id):
+        topic = 'cmd/' + self.smart_objects[room_id]['id'] + '/' + self.smart_objects[room_id]['devices'][device_id][
+            'id']
+        current_status = self.smart_objects[room_id]['devices'][device_id]['settings']['status']
+        if current_status == 'OFF':
+            self.smart_objects[room_id]['devices'][device_id]['settings']['status'] = 'ON'
+            message = 'on'
+        else:
+            self.smart_objects[room_id]['devices'][device_id]['settings']['status'] = 'OFF'
+            message = 'off'
+        self.mqtt_manager.mqtt_send_message(topic, message)
+        self.wm.tk_room_view(room_id)
 
-# def main():
-#     main.mqtt_client.publish("test/topic", "Hello world2!");
-#
+    def device_change_power(self, device_id, room_id, new_power):
+        new_power = int(new_power)
+        current_power = self.smart_objects[room_id]['devices'][device_id]['settings']['power']
+        if new_power == current_power:
+            return
+        else:
+            self.smart_objects[room_id]['devices'][device_id]['settings']['power'] = new_power
+            topic = 'cmd/' + self.smart_objects[room_id]['id'] + '/' + \
+                    self.smart_objects[room_id]['devices'][device_id]['id']
+            message = new_power
+            self.mqtt_manager.mqtt_send_message(topic, message)
+
+    def device_change_prop(self, device_id, room_id, new_prop):
+        device_props = self.smart_objects[room_id]['devices'][device_id]['settings']['props']
+        prop_id = None
+        for i in range(len(device_props)):
+            if device_props[i] == new_prop:
+                prop_id = i
+                break
+        if prop_id is None:
+            print("Błąd właściwości urządzenia")
+            return
+
+        self.smart_objects[room_id]['devices'][device_id]['settings']['prop'] = prop_id
+        topic = 'cmd/' + self.smart_objects[room_id]['id'] + '/' + \
+                self.smart_objects[room_id]['devices'][device_id]['id']
+        message = 'p' + format(i)
+        self.mqtt_manager.mqtt_send_message(topic, message)
 
 if __name__ == '__main__':
     main = Main()
