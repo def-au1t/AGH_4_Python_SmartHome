@@ -4,7 +4,7 @@ Application is a project for Python Classes. Allows users send messeges to MQTT 
 User information is stored in MongoDB Atlas, so to run app, your access token is required.
 
 ## Running instructions
-- `pip install requirements.txt`
+- `pip install -r requirements.txt`
 - Create `.env` file in main project folder with content:
 
     `export CONNECTION_STRING=<your mongoDB Atlas string>`
