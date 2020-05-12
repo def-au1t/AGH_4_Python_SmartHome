@@ -19,7 +19,7 @@ class Main(object):
         self.smart_objects = None
         self.db = None
         self.wm: WindowsManager = None
-        self.logged = "test"
+        self.logged = None
 
         load_dotenv()
         self.parse_smart_objects_config()
