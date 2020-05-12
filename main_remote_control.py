@@ -1,15 +1,13 @@
 import io
 import json
 import os
-import time
 
 import bcrypt as bcrypt
 import pymongo
 import pyotp
 import qrcode
-from bson.binary import Binary
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from mqtt import *
 from tk_views import *
 
@@ -19,7 +17,8 @@ class Main(object):
         self.smart_objects = None
         self.db = None
         self.wm: WindowsManager = None
-        self.logged = None
+        # self.dm: DevicesManager = None
+        self.logged = "jacek"
 
         load_dotenv()
         self.parse_smart_objects_config()
@@ -87,7 +86,7 @@ class Main(object):
         if user:
             print("użytkownik już istnieje w bazie!")
             self.wm.tk_register_view(info="Nazwa użytkownika już istnieje!")
-            return;
+            return
 
         random_key = pyotp.random_base32()
         qr_string = pyotp.totp.TOTP(random_key).provisioning_uri(username, issuer_name="Smart Home Remote Control")
@@ -109,11 +108,9 @@ class Main(object):
             return
 
         passwd_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-        qr_img = open("static/qr/qr_code_" + username + ".png", 'rb').read()
         new_user = {"username": username,
                     "password": passwd_hash,
-                    "otp_key": key,
-                    "img": Binary(qr_img)}
+                    "otp_key": key}
         users.insert_one(new_user)
 
         self.wm.tk_login_view(info="Zarejestrowano pomyślnie! Zaloguj się!")
@@ -124,7 +121,7 @@ class Main(object):
             client = pymongo.MongoClient(c_string)
             self.db = client.get_database("smarthome")
         except:
-            print("Cannot connect to MongoDB database!")
+            print("Nie udało się połączyć z bazą danych!")
             exit()
 
     def parse_smart_objects_config(self):
@@ -133,8 +130,9 @@ class Main(object):
                 config_text = config_data.read()
                 self.smart_objects = json.loads(config_text)
             except:
-                print("Cannot parse JSON config.")
+                print("Parsowanie konfiguracji z pliku JSON nie powiodło się.")
                 exit()
+
 
     def switch_device(self, device_id, room_id, button):
         topic = 'cmd/' + self.smart_objects[room_id]['id'] + '/' + self.smart_objects[room_id]['devices'][device_id][
@@ -147,7 +145,7 @@ class Main(object):
             self.smart_objects[room_id]['devices'][device_id]['settings']['status'] = 'OFF'
             message = 'off'
         self.mqtt_manager.mqtt_send_message(topic, message)
-        self.update_button_from_current_state(button, self.smart_objects[room_id]['devices'][device_id]['settings']['status'])
+        button.config(text=self.smart_objects[room_id]['devices'][device_id]['settings']['status'])
 
     def device_change_power(self, device_id, room_id, new_power):
         new_power = int(new_power)
@@ -175,16 +173,14 @@ class Main(object):
         self.smart_objects[room_id]['devices'][device_id]['settings']['prop'] = prop_id
         topic = 'cmd/' + self.smart_objects[room_id]['id'] + '/' + \
                 self.smart_objects[room_id]['devices'][device_id]['id']
-        message = 'p' + format(i)
+        message = 'p' + format(prop_id)
         self.mqtt_manager.mqtt_send_message(topic, message)
-
-
 
     def update_button_from_current_state(self, button, new_label):
         button.config(text=new_label)
 
     def check_view_update_on_msg(self, topic, message):
-        if topic+"|"+message == self.mqtt_manager.last_sent_command:
+        if topic + "|" + message == self.mqtt_manager.last_sent_command:
             return
         topic = str(topic)
         message = str(message)
@@ -197,7 +193,7 @@ class Main(object):
             if self.smart_objects[room_id]['id'] == received_room_name:
                 received_room_id = room_id
                 break
-        if received_room_id == None:
+        if received_room_id is None:
             return
         for device_num in range(len(self.smart_objects[received_room_id]['devices'])):
             if self.smart_objects[received_room_id]['devices'][device_num]['id'] == received_device_name:
@@ -226,6 +222,7 @@ class Main(object):
 
         if self.wm.current_room == received_room_id and update:
             self.wm.tk_room_view(self.wm.current_room)
+
 
 if __name__ == '__main__':
     main = Main()
