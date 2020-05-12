@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import time
 
 import bcrypt as bcrypt
 import pymongo
@@ -18,11 +19,12 @@ class Main(object):
         self.smart_objects = None
         self.db = None
         self.wm: WindowsManager = None
-        self.logged = None
+        self.logged = "test"
 
         load_dotenv()
         self.parse_smart_objects_config()
-        self.mqtt_manager = MqttManager()
+        self.mqtt_manager = MqttManager(self)
+
         self.connect_to_db()
         self.wm = WindowsManager(self)
         self.wm.loop()
@@ -134,7 +136,7 @@ class Main(object):
                 print("Cannot parse JSON config.")
                 exit()
 
-    def switch_device(self, device_id, room_id):
+    def switch_device(self, device_id, room_id, button):
         topic = 'cmd/' + self.smart_objects[room_id]['id'] + '/' + self.smart_objects[room_id]['devices'][device_id][
             'id']
         current_status = self.smart_objects[room_id]['devices'][device_id]['settings']['status']
@@ -145,7 +147,7 @@ class Main(object):
             self.smart_objects[room_id]['devices'][device_id]['settings']['status'] = 'OFF'
             message = 'off'
         self.mqtt_manager.mqtt_send_message(topic, message)
-        self.wm.tk_room_view(room_id)
+        self.update_button_from_current_state(button, self.smart_objects[room_id]['devices'][device_id]['settings']['status'])
 
     def device_change_power(self, device_id, room_id, new_power):
         new_power = int(new_power)
@@ -175,6 +177,55 @@ class Main(object):
                 self.smart_objects[room_id]['devices'][device_id]['id']
         message = 'p' + format(i)
         self.mqtt_manager.mqtt_send_message(topic, message)
+
+
+
+    def update_button_from_current_state(self, button, new_label):
+        button.config(text=new_label)
+
+    def check_view_update_on_msg(self, topic, message):
+        if topic+"|"+message == self.mqtt_manager.last_sent_command:
+            return
+        topic = str(topic)
+        message = str(message)
+        parts = topic.split("/")
+        received_room_name = parts[1]
+        received_device_name = parts[2]
+        received_room_id = None
+        received_device_id = None
+        for room_id in range(len(self.smart_objects)):
+            if self.smart_objects[room_id]['id'] == received_room_name:
+                received_room_id = room_id
+                break
+        if received_room_id == None:
+            return
+        for device_num in range(len(self.smart_objects[received_room_id]['devices'])):
+            if self.smart_objects[received_room_id]['devices'][device_num]['id'] == received_device_name:
+                received_device_id = device_num
+                break
+        settings = self.smart_objects[received_room_id]['devices'][received_device_id]['settings']
+
+        update = False
+        if message == 'on':
+            if settings['status'] != 'ON':
+                settings['status'] = 'ON'
+                update = True
+        elif message == 'off':
+            if settings['status'] != 'OFF':
+                settings['status'] = 'OFF'
+                update = True
+
+        elif message.isnumeric():
+            if settings['power'] != int(message):
+                settings['power'] = int(message)
+                update = False
+
+        elif message[0] == 'p' and message[1:].isnumeric():
+            settings['prop'] = int(message[1:])
+            update = True
+
+        if self.wm.current_room == received_room_id and update:
+            self.wm.tk_room_view(self.wm.current_room)
 
 if __name__ == '__main__':
     main = Main()

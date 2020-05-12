@@ -28,6 +28,22 @@
             "power_max": 10,
             "power": 2
           }
+        },
+		{
+          "name": "Oświetlenie kuchni 3",
+          "type": "light",
+          "id": "light3",
+          "settings": {
+            "status": "ON",
+            "power_max": 10,
+            "power": 5,
+            "props": [
+              "światło białe",
+              "światło żółte",
+              "światło czerwone"
+            ],
+            "prop": 2
+          }
         }
       ]
     },
@@ -80,6 +96,40 @@
         },
         {
           "name": "Wieża stereo 2",
+          "type": "audio",
+          "id": "audio1",
+          "settings": {
+            "status": "OFF",
+            "power_max": 15,
+            "power": 3,
+            "props": [
+              "Radio Internetowe",
+              "Bluetooth",
+              "TV",
+              "Spotify"
+            ],
+            "prop": 1
+          }
+        },
+        {
+          "name": "Wieża stereo 3",
+          "type": "audio",
+          "id": "audio1",
+          "settings": {
+            "status": "OFF",
+            "power_max": 15,
+            "power": 3,
+            "props": [
+              "Radio Internetowe",
+              "Bluetooth",
+              "TV",
+              "Spotify"
+            ],
+            "prop": 1
+          }
+        },
+        {
+          "name": "Wieża stereo 4",
           "type": "audio",
           "id": "audio1",
           "settings": {
