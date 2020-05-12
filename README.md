@@ -68,6 +68,9 @@ W przypadku błędnego pliku `config.json` uruchomienie programu nie będzie mo�
 Przykładowy plik `config.json` załączony jest do projektu.
 
 ## Komunikaty do brokera MQTT
+Aby aplikacja działała, powinna móc połączyć się z brokerem MQTT. Testowana była z programem Mosquitto, działającym 
+na tym samym komputerze co program. Dane do połączenia z brokerem należy podać w pliku .env (patrz: Instrukcje uruchomienia)
+
 Po zmianie statusu urządzenia wysyłany jest komunikat do brokera MQTT o temacie:
 `/msg/<id_pomieszczenia>/<id_urządzenia>` i komunikacie `<komunikat>`,
 gdzie:
@@ -91,6 +94,16 @@ rzeczywistym.
 **Uwaga!** W przypadku zmiany mocy urządzenia, z racji dużej ilości komunikatów przy *płynnej* zmianie mocy,
 informacja o zmianie jest widoczna dopiero po odświeżeniu strony pomieszczenia.
 
+## Logowanie i weryfikacja dwuetapowa
+Aby zarejestrować użytkownika, konieczna jest unikalna nazwa oraz hasło - oba o długości przynajmniej 3 znaków, a 
+także połączenie z internetem.
+
+Aby móc korzystać z weryfikacji dwuetapowej najlepiej użyć aplikacji na telefon - np. **Google Authenticator**. 
+Po zeskanowaniu kodu QR i poprawnej rejestracji w programie, kod zostanie umieszczony w folderze `/static/qr/` pod 
+nazwą `qr_code_<nazwa użytkownika>.pgn` w celu odzyskania dostępu przy utracie możliwości użycia Authenticatora. Dla 
+bezpieczeństwa można usunąć plik z kodem, aby uniknąć możlwości obejścia weryfikacji dwuetapowej przez innego 
+użytkownika.
+
 ## Interfejs programu
 Interfejs został zbudowany przy użyciu biblioteki `TKinter`. Aplikacja prezentuje się następująco:
 #### Ekran główny:
@@ -108,13 +121,15 @@ Interfejs został zbudowany przy użyciu biblioteki `TKinter`. Aplikacja prezent
 ![Rejestracja](images/login.png)
 
 ## Instrukcje uruchomienia
+- uruchom Mosquitto
 - `pip install -r requirements.txt`
 - Utwórz plik `.env` w głównym folderze projektu z następującą zawartością:
   ```
   export CONNECTION_STRING=<your mongoDB Atlas string>
-  export MQTT_HOST=<host>
-  export MQTT_PORT=<port>
+  export MQTT_HOST=<host Mosquitto (np. localhost)>
+  export MQTT_PORT=<port Mosquitto (np. 1883)>
   ```
 - `python main.py`
+- aby móc korzystać z logowania, użyj np. aplikacji `Google Authenicator` na Androida.
 ---
 Autor: Jacek Nitychoruk
