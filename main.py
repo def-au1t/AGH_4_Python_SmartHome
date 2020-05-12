@@ -21,7 +21,7 @@ class Main(object):
         """
 
         # Replace with some name, to avoid need to login to app:
-        self.logged = "jacek"
+        self.logged = None
 
         load_dotenv()
 
