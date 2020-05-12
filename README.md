@@ -121,7 +121,7 @@ Interfejs został zbudowany przy użyciu biblioteki `TKinter`. Aplikacja prezent
 ![Rejestracja](images/login.png)
 
 ## Instrukcje uruchomienia
-- uruchom Mosquitto
+- Uruchom Mosquitto
 - `pip install -r requirements.txt`
 - Utwórz plik `.env` w głównym folderze projektu z następującą zawartością:
   ```
@@ -130,6 +130,6 @@ Interfejs został zbudowany przy użyciu biblioteki `TKinter`. Aplikacja prezent
   export MQTT_PORT=<port Mosquitto (np. 1883)>
   ```
 - `python main.py`
-- aby móc korzystać z logowania, użyj np. aplikacji `Google Authenicator` na Androida.
+- Aby móc korzystać z logowania, użyj np. aplikacji `Google Authenicator` na Androida.
 ---
 Autor: Jacek Nitychoruk
