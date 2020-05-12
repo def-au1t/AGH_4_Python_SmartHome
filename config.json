@@ -29,46 +29,51 @@
             "power": 2
           }
         },
+        {
+          "name": "Czajnik",
+          "type": "kettle",
+          "id": "kettle",
+          "settings": {
+            "status": "OFF"
+          }
+        },
 		{
-          "name": "Oświetlenie kuchni 3",
-          "type": "light",
-          "id": "light3",
+          "name": "Czujnik ruchu",
+          "type": "move",
+          "id": "move",
           "settings": {
             "status": "ON",
-            "power_max": 10,
-            "power": 5,
             "props": [
-              "światło białe",
-              "światło żółte",
-              "światło czerwone"
+              "Czuwanie",
+              "Alarm",
+              "Zapis w dzienniku"
             ],
-            "prop": 2
+            "prop": 0
           }
         }
       ]
     },
     {
-      "name": "Pokój dzienny",
+      "name": "Salon",
       "id": "living_room",
       "devices": [
         {
-          "name": "Oświetlenie salonu 1",
+          "name": "Główne oświetlenie salonu",
           "type": "light",
           "id": "light1",
           "settings": {
-            "status": "OFF",
+            "status": "ON",
             "power_max": 100,
-            "power": 0,
             "props": [
-              "światło białe",
-              "światło żółte",
-              "światło zielone"
+              "Światło białe",
+              "Światło żółte",
+              "Światło zielone"
             ],
             "prop": 0
           }
         },
         {
-          "name": "Oświetlenie salonu 2",
+          "name": "Oświetlenie nocne",
           "type": "light",
           "id": "light2",
           "settings": {
@@ -78,70 +83,133 @@
           }
         },
         {
-          "name": "Wieża stereo",
-          "type": "audio",
-          "id": "audio1",
+          "name": "Telewizor",
+          "type": "tv",
+          "id": "tv1",
           "settings": {
             "status": "OFF",
-            "power_max": 15,
-            "power": 3,
             "props": [
-              "Radio Internetowe",
-              "Bluetooth",
-              "TV",
-              "Spotify"
+              "Telewizja satelitarna",
+              "Chromecast",
+              "Konsola",
+              "Notebook"
             ],
             "prop": 1
           }
         },
         {
-          "name": "Wieża stereo 2",
-          "type": "audio",
-          "id": "audio1",
+          "name": "Klimatyzacja",
+          "type": "air",
+          "id": "air",
           "settings": {
             "status": "OFF",
-            "power_max": 15,
-            "power": 3,
+            "power_max": 4,
+            "power": 0,
             "props": [
-              "Radio Internetowe",
-              "Bluetooth",
-              "TV",
-              "Spotify"
+              "Maksymalne chłodzenie",
+              "21 stopni",
+              "23 stopnie",
+              "26 stopnie",
+              "Ręcznie"
             ],
-            "prop": 1
+            "prop": 5
           }
         },
         {
-          "name": "Wieża stereo 3",
-          "type": "audio",
-          "id": "audio1",
+          "name": "Czujnik ruchu",
+          "type": "move",
+          "id": "move",
           "settings": {
             "status": "OFF",
-            "power_max": 15,
-            "power": 3,
             "props": [
-              "Radio Internetowe",
-              "Bluetooth",
-              "TV",
-              "Spotify"
+              "Czuwanie",
+              "Alarm",
+              "Zapis w dzienniku"
             ],
-            "prop": 1
+            "prop": 0
           }
         },
         {
-          "name": "Wieża stereo 4",
-          "type": "audio",
-          "id": "audio1",
+          "name": "Żaluzja zewnętrzna",
+          "type": "shutter",
+          "id": "shutter1",
           "settings": {
             "status": "OFF",
             "power_max": 15,
-            "power": 3,
+            "prop": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sypialnia",
+      "id": "bedroom",
+      "devices": [
+        {
+          "name": "Główne oświetlenie sypialni",
+          "type": "light",
+          "id": "light1",
+          "settings": {
+            "status": "ON",
+            "power_max": 100,
             "props": [
-              "Radio Internetowe",
-              "Bluetooth",
-              "TV",
-              "Spotify"
+              "Światło białe",
+              "Światło żółte",
+              "Światło zielone"
             ],
+            "prop": 0
+          }
+        },
+        {
+          "name": "Oświetlenie nocne",
+          "type": "light",
+          "id": "light2",
+          "settings": {
+            "status": "OFF",
+            "power_max": 10,
+            "power": 7
+          }
+        },
+        {
+          "name": "Klimatyzacja",
+          "type": "air",
+          "id": "air",
+          "settings": {
+            "status": "OFF",
+            "power_max": 4,
+            "power": 0,
+            "props": [
+              "Maksymalne chłodzenie",
+              "21 stopni",
+              "23 stopnie",
+              "26 stopnie",
+              "Tryb nocny",
+              "Ręcznie"
+            ],
+            "prop": 5
+          }
+        },
+        {
+          "name": "Czujnik ruchu",
+          "type": "move",
+          "id": "move",
+          "settings": {
+            "status": "OFF",
+            "props": [
+              "Czuwanie",
+              "Alarm",
+              "Zapis w dzienniku"
+            ],
+            "prop": 0
+          }
+        },
+        {
+          "name": "Żaluzja zewnętrzna",
+          "type": "shutter",
+          "id": "shutter1",
+          "settings": {
+            "status": "ON",
+            "power_max": 15,
             "prop": 1
           }
         }
