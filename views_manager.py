@@ -180,7 +180,7 @@ class WindowsManager(object):
         for room_id in range(len(self.main.dm.smart_objects)):
             room_name = self.main.dm.smart_objects[room_id]['name']
             rooms_menu.add_command(label=room_name, command=lambda rid=room_id: self.tk_room_view(rid))
-        menu.add_cascade(label="Strona główna", command=self.tk_logged)
+        menu.add_command(label="Strona główna", command=lambda: self.tk_logged())
         menu.add_cascade(label="Pokoje", menu=rooms_menu)
         menu.add_command(label="Wyloguj się", command=lambda: self.main.logout())
         self.window.config(menu=menu)
