@@ -4,7 +4,7 @@ from functools import partial
 from tkinter import FLAT
 from tkinter import ttk, PhotoImage
 from PIL import Image, ImageTk
-import sys
+import sys, os
 
 
 def configure_styles():
@@ -270,7 +270,7 @@ class WindowsManager(object):
                 if 'prop' in device['settings']:
                     current = device['settings']['prop']
                     if len(props) <= int(current):
-                        print("nieprawidłowa wartość opcji inteligentnego obiektu")
+                        print("zeruję wartość opcji inteligentnego obiektu")
                         current = 0
                 else:
                     current = 0
