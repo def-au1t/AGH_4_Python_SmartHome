@@ -2,8 +2,9 @@ import tkinter as tk
 
 from functools import partial
 from tkinter import FLAT
-from tkinter import ttk
+from tkinter import ttk, PhotoImage
 from PIL import Image, ImageTk
+import sys
 
 
 def configure_styles():
@@ -35,7 +36,7 @@ class WindowsManager(object):
         self.window.geometry("1000x600")
         self.window.resizable(False, False)
         self.window.grid_columnconfigure(0, weight=1)
-        self.window.iconbitmap('static/icon.ico')
+        self.window.iconphoto(True, PhotoImage(file=os.path.join(sys.path[0], "static/icon.png")))
         configure_styles()
         if self.main.logged:
             self.tk_logged()
